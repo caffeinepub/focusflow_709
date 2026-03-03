@@ -1,0 +1,250 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/assets/fonts/BricolageGrotesque[opsz,wdth,wght].woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "General Sans";
+  src: url("/assets/fonts/GeneralSans-Variable.woff2") format("woff2");
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/assets/fonts/InstrumentSerif-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+
+    /* Dark mode is the primary/default mode */
+    --background: 0.14 0.008 260;
+    --foreground: 0.94 0.01 260;
+    --card: 0.18 0.01 255;
+    --card-foreground: 0.94 0.01 260;
+    --popover: 0.2 0.012 255;
+    --popover-foreground: 0.94 0.01 260;
+
+    /* Amber/gold primary */
+    --primary: 0.78 0.16 65;
+    --primary-foreground: 0.12 0.008 260;
+
+    --secondary: 0.22 0.012 255;
+    --secondary-foreground: 0.85 0.01 260;
+
+    --muted: 0.22 0.012 255;
+    --muted-foreground: 0.55 0.02 260;
+
+    --accent: 0.28 0.018 255;
+    --accent-foreground: 0.92 0.01 260;
+
+    --destructive: 0.65 0.22 20;
+    --destructive-foreground: 0.98 0 0;
+
+    --border: 0.28 0.015 255;
+    --input: 0.24 0.015 255;
+    --ring: 0.78 0.16 65;
+
+    /* Semantic colors */
+    --amber: 0.78 0.16 65;
+    --amber-glow: 0.85 0.18 70;
+    --amber-dim: 0.55 0.12 65;
+
+    --emerald: 0.72 0.17 155;
+    --emerald-dim: 0.5 0.12 155;
+
+    --sapphire: 0.6 0.2 240;
+    --sapphire-dim: 0.45 0.15 240;
+
+    --ruby: 0.65 0.22 20;
+    --ruby-dim: 0.48 0.18 20;
+
+    --violet: 0.62 0.22 295;
+    --violet-dim: 0.45 0.18 295;
+
+    --tangerine: 0.72 0.2 40;
+    --tangerine-dim: 0.52 0.15 40;
+
+    /* Charts */
+    --chart-1: 0.78 0.16 65;
+    --chart-2: 0.72 0.17 155;
+    --chart-3: 0.6 0.2 240;
+    --chart-4: 0.65 0.22 20;
+    --chart-5: 0.62 0.22 295;
+
+    /* Sidebar */
+    --sidebar: 0.11 0.008 260;
+    --sidebar-foreground: 0.88 0.01 260;
+    --sidebar-primary: 0.78 0.16 65;
+    --sidebar-primary-foreground: 0.12 0.008 260;
+    --sidebar-accent: 0.2 0.012 255;
+    --sidebar-accent-foreground: 0.88 0.01 260;
+    --sidebar-border: 0.22 0.015 255;
+    --sidebar-ring: 0.78 0.16 65;
+  }
+
+  .light {
+    --background: 0.97 0.005 260;
+    --foreground: 0.12 0.01 260;
+    --card: 1 0 0;
+    --card-foreground: 0.12 0.01 260;
+    --popover: 1 0 0;
+    --popover-foreground: 0.12 0.01 260;
+    --primary: 0.65 0.15 65;
+    --primary-foreground: 0.98 0 0;
+    --secondary: 0.93 0.008 260;
+    --secondary-foreground: 0.2 0.01 260;
+    --muted: 0.93 0.008 260;
+    --muted-foreground: 0.48 0.02 260;
+    --accent: 0.93 0.008 260;
+    --accent-foreground: 0.2 0.01 260;
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.98 0 0;
+    --border: 0.88 0.01 260;
+    --input: 0.88 0.01 260;
+    --ring: 0.65 0.15 65;
+    --sidebar: 0.95 0.006 260;
+    --sidebar-foreground: 0.12 0.01 260;
+    --sidebar-primary: 0.65 0.15 65;
+    --sidebar-primary-foreground: 0.98 0 0;
+    --sidebar-accent: 0.91 0.008 260;
+    --sidebar-accent-foreground: 0.12 0.01 260;
+    --sidebar-border: 0.88 0.01 260;
+    --sidebar-ring: 0.65 0.15 65;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "General Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: "Bricolage Grotesque", sans-serif;
+  }
+  .font-body {
+    font-family: "General Sans", sans-serif;
+  }
+  .font-serif {
+    font-family: "Instrument Serif", serif;
+  }
+
+  /* Gradient text */
+  .text-gradient-amber {
+    background: linear-gradient(135deg, oklch(0.85 0.18 70), oklch(0.72 0.2 40));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glowing effects */
+  .glow-amber {
+    box-shadow: 0 0 20px oklch(0.78 0.16 65 / 0.3), 0 0 60px oklch(0.78 0.16 65 / 0.1);
+  }
+  .glow-emerald {
+    box-shadow: 0 0 20px oklch(0.72 0.17 155 / 0.3), 0 0 60px oklch(0.72 0.17 155 / 0.1);
+  }
+  .glow-ruby {
+    box-shadow: 0 0 20px oklch(0.65 0.22 20 / 0.3);
+  }
+
+  /* Subtle noise texture overlay */
+  .noise-overlay {
+    position: relative;
+  }
+  .noise-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Progress ring animation */
+  @keyframes ring-fill {
+    from { stroke-dashoffset: 251; }
+    to { stroke-dashoffset: var(--dash-offset); }
+  }
+  .ring-animated {
+    animation: ring-fill 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes flame-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: 0.85; }
+  }
+  .flame-pulse {
+    animation: flame-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up {
+    animation: fade-up 0.4s ease-out forwards;
+  }
+
+  @keyframes slide-in-right {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .slide-in-right {
+    animation: slide-in-right 0.35s ease-out forwards;
+  }
+
+  /* Stagger delays */
+  .delay-75 { animation-delay: 75ms; }
+  .delay-150 { animation-delay: 150ms; }
+  .delay-225 { animation-delay: 225ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-375 { animation-delay: 375ms; }
+  .delay-450 { animation-delay: 450ms; }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(var(--border));
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(var(--muted-foreground));
+  }
+}
