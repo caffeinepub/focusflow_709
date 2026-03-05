@@ -7,12 +7,13 @@ import Array "mo:core/Array";
 import Order "mo:core/Order";
 import Iter "mo:core/Iter";
 import Nat "mo:core/Nat";
-import Error "mo:core/Error";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
+import Migration "migration";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
+(with migration = Migration.run)
 actor {
   public type TaskCategory = { #importance; #urgency; #both };
 
@@ -504,5 +505,53 @@ actor {
     let completedTasks = userTasks.filter(func(task) { task.completed }).size();
 
     (completedTasks, totalTasks);
+  };
+
+  public shared ({ caller }) func deleteGoal(goalId : Nat) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can delete goals");
+    };
+
+    switch (goalsMap.get(goalId)) {
+      case (null) { Runtime.trap("Goal not found") };
+      case (?goal) {
+        if (goal.user != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Can only delete your own goals");
+        };
+
+        let tasksToDelete = List.empty<Nat>();
+        for ((taskId, task) in dailyTasksMap.entries()) {
+          if (task.goalId == goalId) {
+            tasksToDelete.add(taskId);
+          };
+        };
+
+        let taskIds = tasksToDelete.toArray();
+        if (taskIds.size() > 0) {
+          for (id in taskIds.values()) {
+            dailyTasksMap.remove(id);
+          };
+        };
+
+        goalsMap.remove(goalId);
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteRecurringTask(taskId : Nat) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can delete tasks");
+    };
+
+    switch (recurringTasksMap.get(taskId)) {
+      case (null) { Runtime.trap("Task not found") };
+      case (?task) {
+        if (task.user != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Can only delete your own tasks");
+        };
+
+        recurringTasksMap.remove(taskId);
+      };
+    };
   };
 };

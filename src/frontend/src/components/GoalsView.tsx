@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +29,7 @@ import {
   Loader2,
   Plus,
   Target,
+  Trash2,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -30,6 +41,7 @@ import {
   nsToDate,
   useAllGoals,
   useCreateGoal,
+  useDeleteGoal,
 } from "../hooks/useQueries";
 import { SAMPLE_DAILY_TASKS, SAMPLE_GOALS } from "../lib/sampleData";
 
@@ -55,10 +67,11 @@ function CategoryBadge({ category }: { category: TaskCategory }) {
 interface GoalCardProps {
   goal: Goal;
   onClick: () => void;
+  onDelete: (e: React.MouseEvent) => void;
   index: number;
 }
 
-function GoalCard({ goal, onClick, index }: GoalCardProps) {
+function GoalCard({ goal, onClick, onDelete, index }: GoalCardProps) {
   const allTasks = SAMPLE_DAILY_TASKS[goal.id.toString()] ?? [];
   const total = allTasks.length;
   const completed = allTasks.filter((t) => t.completed).length;
@@ -86,7 +99,18 @@ function GoalCard({ goal, onClick, index }: GoalCardProps) {
             {goal.description}
           </p>
         </div>
-        <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0 group-hover:text-primary transition-colors mt-0.5" />
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <button
+            type="button"
+            data-ocid={`goals.delete_button.${index}`}
+            onClick={onDelete}
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all opacity-0 group-hover:opacity-100"
+            title="Delete goal"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors mt-0.5" />
+        </div>
       </div>
 
       <div className="flex items-center gap-2 mb-3 flex-wrap">
@@ -312,7 +336,26 @@ interface GoalsViewProps {
 export default function GoalsView({ onNavigate }: GoalsViewProps) {
   const { data: rawGoals, isLoading } = useAllGoals();
   const goals = rawGoals && rawGoals.length > 0 ? rawGoals : SAMPLE_GOALS;
+  const deleteGoal = useDeleteGoal();
   const [showForm, setShowForm] = useState(false);
+  const [goalToDelete, setGoalToDelete] = useState<Goal | null>(null);
+
+  const handleDeleteConfirm = async () => {
+    if (!goalToDelete) return;
+    const isSample = !(rawGoals && rawGoals.length > 0);
+    if (isSample) {
+      toast.info("Cannot delete sample goals -- create your own goals first.");
+      setGoalToDelete(null);
+      return;
+    }
+    try {
+      await deleteGoal.mutateAsync(goalToDelete.id);
+      toast.success("Goal deleted.");
+    } catch {
+      toast.error("Failed to delete goal.");
+    }
+    setGoalToDelete(null);
+  };
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
@@ -369,6 +412,10 @@ export default function GoalsView({ onNavigate }: GoalsViewProps) {
               goal={goal}
               index={i + 1}
               onClick={() => onNavigate("goal-detail", goal)}
+              onDelete={(e) => {
+                e.stopPropagation();
+                setGoalToDelete(goal);
+              }}
             />
           ))}
         </div>
@@ -389,6 +436,38 @@ export default function GoalsView({ onNavigate }: GoalsViewProps) {
           <NewGoalForm onClose={() => setShowForm(false)} />
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog
+        open={!!goalToDelete}
+        onOpenChange={(open) => !open && setGoalToDelete(null)}
+      >
+        <AlertDialogContent
+          className="border-border bg-card"
+          data-ocid="goals.delete.dialog"
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Goal?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{goalToDelete?.title}" and all its
+              daily tasks. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-ocid="goals.delete.cancel_button">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-ocid="goals.delete.confirm_button"
+              disabled={deleteGoal.isPending}
+            >
+              {deleteGoal.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

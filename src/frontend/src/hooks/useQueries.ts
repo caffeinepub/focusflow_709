@@ -121,6 +121,22 @@ export function useAllDailyTasksToday(goals: Goal[]) {
   });
 }
 
+export function useDeleteGoal() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (goalId: bigint) => {
+      if (!actor) throw new Error("Not connected");
+      await actor.deleteGoal(goalId);
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["goals"] });
+      void qc.invalidateQueries({ queryKey: ["dailyTasks"] });
+      void qc.invalidateQueries({ queryKey: ["allDailyTasksToday"] });
+    },
+  });
+}
+
 // ─── Recurring Tasks ─────────────────────────────────────────────────────────
 export function useAllRecurringTasks() {
   const { actor, isFetching } = useActor();
@@ -153,6 +169,20 @@ export function useCreateRecurringTask() {
         vars.scheduledTime,
         vars.reminderOffsets,
       );
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["recurringTasks"] });
+    },
+  });
+}
+
+export function useDeleteRecurringTask() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (taskId: bigint) => {
+      if (!actor) throw new Error("Not connected");
+      await actor.deleteRecurringTask(taskId);
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["recurringTasks"] });

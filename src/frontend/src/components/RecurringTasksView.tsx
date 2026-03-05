@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,15 +21,24 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { Bell, Calendar, Clock, Loader2, Plus, RepeatIcon } from "lucide-react";
+import {
+  Bell,
+  Calendar,
+  Clock,
+  Loader2,
+  Plus,
+  RepeatIcon,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DayOfWeek } from "../backend.d";
-import type { TaskInterval } from "../backend.d";
+import type { RecurringTask, TaskInterval } from "../backend.d";
 import {
   formatInterval,
   useAllRecurringTasks,
   useCreateRecurringTask,
+  useDeleteRecurringTask,
 } from "../hooks/useQueries";
 import { SAMPLE_RECURRING_TASKS } from "../lib/sampleData";
 
@@ -305,7 +324,26 @@ export default function RecurringTasksView() {
   const { data: rawTasks, isLoading } = useAllRecurringTasks();
   const tasks =
     rawTasks && rawTasks.length > 0 ? rawTasks : SAMPLE_RECURRING_TASKS;
+  const deleteRecurringTask = useDeleteRecurringTask();
   const [showForm, setShowForm] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<RecurringTask | null>(null);
+
+  const handleDeleteConfirm = async () => {
+    if (!taskToDelete) return;
+    const isSample = !(rawTasks && rawTasks.length > 0);
+    if (isSample) {
+      toast.info("Cannot delete sample tasks -- create your own tasks first.");
+      setTaskToDelete(null);
+      return;
+    }
+    try {
+      await deleteRecurringTask.mutateAsync(taskToDelete.id);
+      toast.success("Task deleted.");
+    } catch {
+      toast.error("Failed to delete task.");
+    }
+    setTaskToDelete(null);
+  };
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
@@ -358,7 +396,7 @@ export default function RecurringTasksView() {
             <div
               key={task.id.toString()}
               data-ocid={`recurring.item.${i + 1}`}
-              className="p-5 rounded-2xl bg-card border border-border shadow-card hover:border-border/80 transition-all fade-up"
+              className="p-5 rounded-2xl bg-card border border-border shadow-card hover:border-border/80 transition-all fade-up group"
               style={{ animationDelay: `${i * 75}ms` }}
             >
               <div className="flex items-start justify-between gap-4 mb-3">
@@ -370,6 +408,15 @@ export default function RecurringTasksView() {
                     {task.description}
                   </p>
                 </div>
+                <button
+                  type="button"
+                  data-ocid={`recurring.delete_button.${i + 1}`}
+                  onClick={() => setTaskToDelete(task)}
+                  className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all opacity-0 group-hover:opacity-100 flex-shrink-0"
+                  title="Delete task"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -412,6 +459,38 @@ export default function RecurringTasksView() {
           <NewRecurringForm onClose={() => setShowForm(false)} />
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog
+        open={!!taskToDelete}
+        onOpenChange={(open) => !open && setTaskToDelete(null)}
+      >
+        <AlertDialogContent
+          className="border-border bg-card"
+          data-ocid="recurring.delete.dialog"
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Recurring Task?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{taskToDelete?.title}". This cannot
+              be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-ocid="recurring.delete.cancel_button">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-ocid="recurring.delete.confirm_button"
+              disabled={deleteRecurringTask.isPending}
+            >
+              {deleteRecurringTask.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

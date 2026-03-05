@@ -169,6 +169,8 @@ export interface backendInterface {
     completeDailyTask(taskId: bigint): Promise<void>;
     createGoal(title: string, description: string, why: string, category: TaskCategory, dueDate: Time): Promise<bigint>;
     createRecurringTask(title: string, description: string, interval: TaskInterval, scheduledTime: string, reminderOffsets: Array<bigint>): Promise<bigint>;
+    deleteGoal(goalId: bigint): Promise<void>;
+    deleteRecurringTask(taskId: bigint): Promise<void>;
     getAllGoals(): Promise<Array<Goal>>;
     getAllRecurringTasks(): Promise<Array<RecurringTask>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -268,6 +270,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.createRecurringTask(arg0, arg1, to_candid_TaskInterval_n5(this._uploadFile, this._downloadFile, arg2), arg3, arg4);
+            return result;
+        }
+    }
+    async deleteGoal(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteGoal(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteGoal(arg0);
+            return result;
+        }
+    }
+    async deleteRecurringTask(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteRecurringTask(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteRecurringTask(arg0);
             return result;
         }
     }

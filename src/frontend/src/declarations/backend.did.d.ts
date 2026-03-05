@@ -81,6 +81,8 @@ export interface _SERVICE {
     [string, string, TaskInterval, string, Array<bigint>],
     bigint
   >,
+  'deleteGoal' : ActorMethod<[bigint], undefined>,
+  'deleteRecurringTask' : ActorMethod<[bigint], undefined>,
   'getAllGoals' : ActorMethod<[], Array<Goal>>,
   'getAllRecurringTasks' : ActorMethod<[], Array<RecurringTask>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
